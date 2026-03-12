@@ -1,0 +1,238 @@
+---
+import { Dot } from "lucide-astro";
+
+type MarqueeRow = {
+  words: string[];
+  speed: number;
+  direction: 1 | -1;
+};
+
+const rows: MarqueeRow[] = [
+  {
+    words: ["Design", "Engineer", "Build", "Connect"],
+    speed: 0.35,
+    direction: 1,
+  },
+  {
+    words: ["Design", "Engineer", "Build", "Connect"],
+    speed: 0.35,
+    direction: -1,
+  },
+];
+---
+
+<section
+  class="hero-section relative min-h-screen overflow-hidden bg-black text-white font-bebas"
+>
+  <!-- Background Video Container -->
+  <div class="absolute inset-0 z-0 bg-black overflow-hidden">
+    <video
+      id="hero-video"
+      src="/scrub-optimized.mp4"
+      class="h-full w-full object-cover opacity-50 will-change-transform"
+      style="transform: translateZ(0); backface-visibility: hidden;"
+      muted
+      playsinline
+      preload="auto"
+    >
+      <source src="/scrub-optimized.mp4" type="video/mp4" />
+    </video>
+
+    <!-- Fallback/Overlay -->
+    <div
+      class="absolute inset-0 bg-gradient-to-b from-black/0 via-black/70 to-black"
+    >
+    </div>
+  </div>
+
+  <div class="relative z-10 flex min-h-screen flex-col justify-end gap-8 py-16">
+    {
+      rows.map((row) => (
+        <div class="overflow-hidden mask-[linear-gradient(to_right,transparent,white_10%,white_90%,transparent)]">
+          <div
+            class="marquee-row flex w-max items-center whitespace-nowrap will-change-transform"
+            data-speed={row.speed}
+            data-direction={row.direction}
+          >
+            {[...row.words, ...row.words, ...row.words, ...row.words].map(
+              (item) => (
+                <div class="flex shrink-0 items-center  gap-4 px-4 md:gap-6 md:px-6">
+                  <h2 class="text-3xl uppercase tracking-[0.15em] md:text-4xl xl:text-2xl">
+                    {item}
+                  </h2>
+                  <Dot class="h-4 w-4 md:h-5 md:w-5 xl:h-6 xl:w-6" />
+                </div>
+              ),
+            )}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<script>
+  import gsap from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  window.addEventListener("load", () => {
+    gsap.registerPlugin(ScrollTrigger);
+
+    const marqueeRows = gsap.utils.toArray<HTMLElement>(".marquee-row");
+
+    marqueeRows.forEach((row) => {
+      const baseDirection = Number(row.dataset.direction || -1); // row's default direction
+      const baseSpeed = Number(row.dataset.speed || 0.4);
+
+      let scrollDirection = 1;
+      let moveDirection = baseDirection * scrollDirection;
+
+      let x = 0;
+      let currentVelocity = 0;
+      let targetVelocity = 0;
+      let lastScrollDirection = 1;
+
+      const singleSetWidth = row.scrollWidth / 4;
+
+      // For rows moving right initially, start offset so the loop is seamless
+      if (moveDirection === 1) {
+        x = -singleSetWidth;
+      }
+
+      gsap.set(row, { x });
+
+      ScrollTrigger.create({
+        trigger: document.documentElement,
+        start: "top top",
+        end: "bottom bottom",
+        onUpdate(self) {
+          const nextScrollDirection = self.direction; // 1 or -1
+          const velocity = Math.abs(self.getVelocity());
+
+          // Increase horizontal speed as user scrolls harder
+          targetVelocity = gsap.utils.clamp(0, 12, velocity * 0.003);
+
+          // Only flip movement when scroll direction changes
+          if (nextScrollDirection !== lastScrollDirection) {
+            scrollDirection *= -1;
+            moveDirection = baseDirection * scrollDirection;
+            lastScrollDirection = nextScrollDirection;
+          }
+        },
+      });
+
+      gsap.ticker.add(() => {
+        // Smooth acceleration/deceleration
+        currentVelocity += (targetVelocity - currentVelocity) * 0.08;
+
+        // Base drift + scroll boost
+        x += moveDirection * (baseSpeed + currentVelocity);
+
+        // Infinite wrap for both directions
+        if (moveDirection === -1 && x <= -singleSetWidth) {
+          x += singleSetWidth;
+        } else if (moveDirection === 1 && x >= 0) {
+          x -= singleSetWidth;
+        }
+
+        gsap.set(row, { x });
+
+        // Ease back down after scroll stops
+        targetVelocity *= 0.9;
+      });
+
+      // Add scale animation reactive to scroll
+      gsap.fromTo(
+        row,
+        { scale: 1 },
+        {
+          scale: 1.2,
+          ease: "none",
+          scrollTrigger: {
+            trigger: row,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true,
+          },
+        },
+      );
+    });
+
+    const video = document.getElementById("hero-video") as HTMLVideoElement;
+
+    /* Senior Engineering: Video Logic */
+    if (video) {
+      const src = video.currentSrc || video.src;
+
+      /* Utility: once listener (standard senior practice) */
+      function once(
+        el: HTMLElement | Window | Document,
+        event: string,
+        fn: Function,
+        opts?: any,
+      ) {
+        var onceFn = function (this: any, e: Event) {
+          el.removeEventListener(event, onceFn);
+          fn.apply(this, arguments);
+        };
+        el.addEventListener(event, onceFn, opts);
+        return onceFn;
+      }
+
+      /* Activation for mobile/iOS */
+      once(document.documentElement, "touchstart", function () {
+        video.play();
+        video.pause();
+      });
+
+      /* Scroll Control Timeline */
+      let tl = gsap.timeline({
+        defaults: { duration: 1 },
+        scrollTrigger: {
+          trigger: ".hero-section",
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+          invalidateOnRefresh: true,
+        },
+      });
+
+      const initScrub = () => {
+        gsap.killTweensOf(video); // Cleanup
+        tl.fromTo(
+          video,
+          { currentTime: 0 },
+          {
+            currentTime: video.duration || 1,
+            ease: "none",
+            force3D: true,
+          },
+        );
+      };
+
+      once(video, "loadedmetadata", initScrub);
+
+      /* Blob Optimization for buffer management */
+      setTimeout(function () {
+        if (window["fetch"]) {
+          fetch(src)
+            .then((response) => response.blob())
+            .then((response) => {
+              var blobURL = URL.createObjectURL(response);
+              var t = video.currentTime;
+
+              once(document.documentElement, "touchstart", function () {
+                video.play();
+                video.pause();
+              });
+
+              video.setAttribute("src", blobURL);
+              video.currentTime = t + 0.01;
+            });
+        }
+      }, 1000);
+
+      if (video.readyState >= 2) initScrub();
+    }
+  });
+</script>

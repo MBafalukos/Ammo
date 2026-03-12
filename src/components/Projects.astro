@@ -1,0 +1,240 @@
+---
+import { Image } from "astro:assets";
+import logo from "../../public/6-copy-1.jpg";
+import logo2 from "../../public/livingroom-day-1.jpg";
+import logo3 from "../../public/desktop-wallpaper-web-development.jpg";
+import ArrowUpRight from "lucide-astro/ArrowUpRight";
+import Plus from "lucide-astro/Plus";
+---
+
+<section
+  class="projects-section relative overflow-hidden bg-black font-bebas h-screen"
+>
+  <div class="projects-wrapper h-full w-full relative">
+    <div
+      class="project-item w-full h-full bg-black absolute inset-0 z-10 overflow-hidden"
+    >
+      <!-- <Image
+        layout="constrained"
+        src={logo}
+        alt="Visual Design"
+        decoding="async"
+        loading="lazy"
+        class="w-full h-full object-contain"
+      /> -->
+      <div
+        class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+      >
+        <div class="overflow-hidden">
+          <h1 class="text-[25vw] leading-none text-white p-4 split-text">
+            WE CREATE
+          </h1>
+        </div>
+        <button
+          class="flex items-center justify-center px-4 gap-2 py-1 border-white border rounded-full"
+        >
+          Project
+          <Plus strokeWidth={0.75} />
+        </button>
+      </div>
+    </div>
+
+    <div
+      class="project-item w-full h-full absolute inset-0 z-20 overflow-hidden"
+    >
+      <!-- <Image
+        layout="constrained"
+        src={logo2}
+        alt="Website"
+        decoding="async"
+        loading="lazy"
+        class="w-full h-full object-contain"
+      /> -->
+      <div
+        class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+      >
+        <div class="overflow-hidden">
+          <h1 class="text-[30vw] leading-none text-white p-4 split-text">
+            STUNNING
+          </h1>
+        </div>
+        <button
+          class="flex items-center justify-center px-4 gap-2 py-1 border-white border rounded-full"
+        >
+          Project
+          <Plus strokeWidth={0.75} />
+        </button>
+      </div>
+    </div>
+
+    <div
+      class="project-item w-full h-full absolute inset-0 z-30 overflow-hidden"
+    >
+      <!--   <Image
+        layout="constrained"
+        src={logo3}
+        alt="Branding"
+        decoding="async"
+        loading="lazy"
+        class="w-full h-full object-contain"
+      /> -->
+      <div
+        class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+      >
+        <div class="overflow-hidden">
+          <h1 class="text-[25vw] leading-none text-white p-4 split-text">
+            CONTENT
+          </h1>
+        </div>
+        <div class="overflow-hidden">
+          <button
+            class="flex items-center justify-center px-4 gap-2 py-1 border-white border rounded-full"
+          >
+            Project
+            <Plus strokeWidth={0.75} />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import gsap from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  window.addEventListener("load", () => {
+    const items = gsap.utils.toArray(".project-item") as HTMLElement[];
+    if (items.length <= 1) return;
+
+    // Split text into spans without breaking internal HTML
+    items.forEach((item) => {
+      const splitElements = item.querySelectorAll(".split-text");
+      splitElements.forEach((el) => {
+        const htmlElement = el as HTMLElement;
+        const text = htmlElement.innerText.trim();
+        htmlElement.innerHTML = text
+          .split("")
+          .map(
+            (char: string) =>
+              `<span class="inline-block translate-y-[110%] opacity-0 leading-none">${char === " " ? "&nbsp;" : char}</span>`,
+          )
+          .join("");
+      });
+    });
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: ".projects-section",
+        start: "top top",
+        end: () => `+=${window.innerHeight * (items.length - 1)}`,
+        scrub: 0.7,
+        pin: true,
+        invalidateOnRefresh: true,
+      },
+    });
+
+    // Initial animation for first item
+    const startupTl = gsap.timeline();
+    startupTl.to(items[0].querySelectorAll(".split-text span"), {
+      translateY: "0%",
+      opacity: 1,
+      stagger: 0.055,
+      duration: 0.8,
+      ease: "power3.out",
+    });
+
+    items.forEach((item, i) => {
+      if (i === 0) return;
+
+      const prevItem = items[i - 1];
+      const prevHead = prevItem.querySelector("h1.split-text");
+      const currentHead = item.querySelector("h1.split-text");
+
+      const prevChars = prevHead ? prevHead.querySelectorAll("span") : [];
+      const currentChars = currentHead
+        ? currentHead.querySelectorAll("span")
+        : [];
+
+      const prevOther = prevItem.querySelectorAll(
+        ".split-text:not(h1) span, .icon-to-animate",
+      );
+      const currentOther = item.querySelectorAll(
+        ".split-text:not(h1) span, .icon-to-animate",
+      );
+
+      const staggerVal = 0.055;
+
+      // Transition for previous item background/scale
+      tl.to(
+        prevItem,
+        {
+          scale: 0,
+          autoAlpha: 0.1,
+          ease: "power2.inOut",
+        },
+        i - 1,
+      );
+
+      // Slide in current item background
+      tl.from(
+        item,
+        {
+          yPercent: 100,
+          ease: "power2.inOut",
+        },
+        i - 1,
+      );
+
+      // Exit animation for previous heading
+      tl.to(
+        prevChars,
+        {
+          translateY: "-110%",
+          opacity: 0,
+          stagger: staggerVal,
+          ease: "power1.in",
+        },
+        i - 1,
+      );
+
+      // Entry animation for current heading (Synchronized)
+      // start_entry = start_exit - staggerVal
+      tl.to(
+        currentChars,
+        {
+          translateY: "0%",
+          opacity: 1,
+          stagger: staggerVal,
+          ease: "power2.out",
+        },
+        i - 1 - staggerVal,
+      );
+
+      // Helper elements (View Design etc) can follow with a slight delay
+      tl.to(
+        prevOther,
+        {
+          translateY: "-110%",
+          opacity: 0,
+          stagger: 0.01,
+          ease: "none",
+        },
+        i - 0.8,
+      );
+
+      tl.to(
+        currentOther,
+        {
+          translateY: "0%",
+          opacity: 1,
+          stagger: 0.01,
+          ease: "power2.out",
+        },
+        i - 0.7,
+      );
+    });
+  });
+</script>

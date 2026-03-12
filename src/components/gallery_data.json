@@ -1,0 +1,24 @@
+{
+  "gallery_items": [
+    {
+      "title": "Modern Interior",
+      "image": "/render-6.webp",
+      "link": "#"
+    },
+    {
+      "title": "Minimal Architecture",
+      "image": "/render-7.webp",
+      "link": "#"
+    },
+    {
+      "title": "Abstract Space",
+      "image": "/6-copy-1.jpg",
+      "link": "#"
+    },
+    {
+      "title": "Living Concept",
+      "image": "/livingroom-day-1.jpg",
+      "link": "#"
+    }
+  ]
+}

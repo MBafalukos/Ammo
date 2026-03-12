@@ -1,0 +1,144 @@
+---
+import { Image } from "astro:assets";
+import render6 from "../../public/render-6.webp";
+import render7 from "../../public/6977c60076774586498849.jpg";
+import img3 from "../../public/6-copy-1.jpg";
+import img4 from "../../public/livingroom-day-1.jpg";
+import Plus from "lucide-astro/Plus";
+
+const projects = [
+  { title: "3D Design", src: render6, link: "/projects/visual" },
+  { title: "Websites", src: render7, link: "/projects/digital" },
+  { title: "Branding", src: img3, link: "/projects/branding" },
+  { title: "Marketing", src: img4, link: "/projects/living" },
+];
+---
+
+<section class="gallery-section bg-black py-40 overflow-hidden">
+  <div class="min-h-screen mx-auto px-4 md:px-10">
+    <div class="flex flex-col">
+      {
+        projects.map((project, index) => (
+          <div class="gallery-item-wrapper relative ">
+            <!-- Large Background Typography -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+                <h2 class="large-typography text-[30vw] font-bebas text-white/5 whitespace-nowrap leading-none transition-all duration-300 select-none">
+                    {project.title.split(' ')[0]}
+                </h2>
+            </div>
+            
+            <div class="relative z-10">
+              <a
+                href={project.link}
+                class="gallery-item group relative overflow-hidden block aspect-[4/3]  md:aspect-[16/9]"
+              >
+                <div class="w-full h-full overflow-hidden">
+                  <Image
+                    src={project.src}
+                    alt={project.title}
+                    class="gallery-image w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                  />
+                </div>
+
+                <div class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-500"></div>
+
+                <div class="absolute inset-x-0 bottom-0 p-8 md:p-12 z-20 flex justify-between items-end">
+                  <div class="overflow-hidden">
+                    <h3 class="text-white font-bebas text-4xl md:text-7xl uppercase tracking-wider mb-4 translate-y-full opacity-0 gallery-detail">
+                      {project.title}
+                    </h3>
+                    <div class="flex items-center gap-4 translate-y-full opacity-0 gallery-detail">
+                       <button
+                          class="flex items-center justify-center px-6 gap-3 py-2 border-white/40 border hover:border-white transition-colors rounded-full text-white font-poppins text-sm md:text-base"
+                        >
+                          Project Details
+                          <Plus strokeWidth={1} size={18} />
+                        </button>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  import gsap from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  window.addEventListener("load", () => {
+    const wrappers = gsap.utils.toArray(".gallery-item-wrapper") as HTMLElement[];
+
+    wrappers.forEach((wrapper, i) => {
+      const item = wrapper.querySelector(".gallery-item");
+      const title = wrapper.querySelector(".large-typography");
+      const details = wrapper.querySelectorAll(".gallery-detail");
+      const image = wrapper.querySelector(".gallery-image");
+
+      if (!title || !item || !image) return;
+
+      // Parallax for the large background title
+      // It moves from -50% to 50% relative to its center
+      gsap.fromTo(title, 
+        { yPercent: 50, opacity: 0.1 },
+        { 
+          yPercent: -50,
+          opacity: 0.8,
+          ease: "none",
+          scrollTrigger: {
+            trigger: wrapper,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true,
+          }
+        }
+      );
+
+      // Entrance animation for project details
+      gsap.to(details, {
+        translateY: 0,
+        opacity: 1,
+        stagger: 0.1,
+        duration: 1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: wrapper,
+          start: "top 70%",
+        }
+      });
+
+      // Image Parallax
+      gsap.fromTo(image,
+        { scale: 1.2 },
+        {
+          scale: 1,
+          ease: "ease",
+          scrollTrigger: {
+            trigger: wrapper,
+            start: "top top",
+            end: "bottom bottom",
+            scrub: true,
+          }
+        }
+      );
+    });
+  });
+</script>
+
+<style>
+  .large-typography {
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.1);
+    color: transparent;
+    text-transform: uppercase;
+  }
+  
+  .gallery-item {
+    box-shadow: 0 40px 100px -20px rgba(0,0,0,0.5);
+  }
+</style>
