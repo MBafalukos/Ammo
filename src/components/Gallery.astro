@@ -6,6 +6,7 @@ import img3 from "../../public/6-copy-1.jpg";
 import img4 from "../../public/livingroom-day-1.jpg";
 import Plus from "lucide-astro/Plus";
 
+
 const projects = [
   { title: "3D Design", src: render6, link: `${import.meta.env.BASE_URL}projects/visual` },
   { title: "Websites", src: render7, link: `${import.meta.env.BASE_URL}projects/digital` },
@@ -21,8 +22,8 @@ const projects = [
         projects.map((project, index) => (
           <div class="gallery-item-wrapper relative ">
             <!-- Large Background Typography -->
-            <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-                <h2 class="large-typography text-[30vw] font-bebas text-white/5 whitespace-nowrap leading-none transition-all duration-300 select-none">
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
+                <h2 class="large-typograph  text-[30vw] font-bebas text-white whitespace-nowrap leading-none transition-all duration-300 select-none">
                     {project.title.split(' ')[0]}
                 </h2>
             </div>
@@ -30,13 +31,15 @@ const projects = [
             <div class="relative z-10">
               <a
                 href={project.link}
-                class="gallery-item group relative overflow-hidden block aspect-[4/3]  md:aspect-[16/9]"
+                class="gallery-item group relative overflow-hidden block "
               >
                 <div class="w-full h-full overflow-hidden">
                   <Image
                     src={project.src}
                     alt={project.title}
-                    class="gallery-image w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                    widths={[240, 540, 720, project.src.width]}
+                    
+                    class="gallery-image w-full h-full object-contain transition-transform duration-1000 group-hover:scale-110"
                   />
                 </div>
 
