@@ -7,11 +7,13 @@ import img4 from "../../public/livingroom-day-1.jpg";
 import Plus from "lucide-astro/Plus";
 
 
+const basePath = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL;
+
 const projects = [
-  { title: "3D Design", src: render6, link: `${import.meta.env.BASE_URL}projects/visual` },
-  { title: "Websites", src: render7, link: `${import.meta.env.BASE_URL}projects/digital` },
-  { title: "Branding", src: img3, link: `${import.meta.env.BASE_URL}projects/branding` },
-  { title: "Marketing", src: img4, link: `${import.meta.env.BASE_URL}projects/living` },
+  { title: "3D Design", src: render6, link: `${basePath}/projects/visual` },
+  { title: "Websites", src: render7, link: `${basePath}/projects/digital` },
+  { title: "Branding", src: img3, link: `${basePath}/projects/branding` },
+  { title: "Marketing", src: img4, link: `${basePath}/projects/living` },
 ];
 ---
 

@@ -1,6 +1,8 @@
 ---
 import { Dot } from "lucide-astro";
 
+const basePath = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL;
+
 type MarqueeRow = {
   words: string[];
   speed: number;
@@ -28,14 +30,14 @@ const rows: MarqueeRow[] = [
   <div class="absolute inset-0 z-0 bg-black overflow-hidden">
     <video
       id="hero-video"
-      src={`${import.meta.env.BASE_URL}scrub-optimized.mp4`}
+      src={`${basePath}/scrub-optimized.mp4`}
       class="h-full w-full object-cover will-change-transform"
       style="transform: translateZ(0); backface-visibility: hidden;"
       muted
       playsinline
       preload="auto"
     >
-      <source src={`${import.meta.env.BASE_URL}scrub-optimized.mp4`} type="video/mp4" />
+      <source src={`${basePath}/scrub-optimized.mp4`} type="video/mp4" />
     </video>
 
     <!-- Fallback/Overlay -->
